@@ -315,7 +315,7 @@ namespace Windows.UI.Xaml.Controls
 		}
 
 		//Return either the contents of ItemsSource or of Items. This method will be obsolete when Items' contents properly reflect ItemsSource
-		internal IEnumerable GetItems()
+		internal virtual IEnumerable GetItems()
 		{
 			var unwrappedSource = UnwrapItemsSource();
 

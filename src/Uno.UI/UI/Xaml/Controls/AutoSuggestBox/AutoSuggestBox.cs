@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections;
 using System.Collections.Specialized;
 using System.Linq;
 using Uno.Extensions.Specialized;
@@ -33,6 +34,7 @@ namespace Windows.UI.Xaml.Controls
 		private string userInput;
 		private BindingPath _textBoxBinding;
 		private FrameworkElement _suggestionsContainer;
+		private IEnumerable _ItemsSource;
 
 		public AutoSuggestBox() : base()
 		{
@@ -92,6 +94,19 @@ namespace Windows.UI.Xaml.Controls
 			UpdateSuggestionList();
 		}
 
+		internal override IEnumerable GetItems()
+		{
+			if (_ItemsSource?.Any() ?? false)
+			{
+				return _ItemsSource;
+			}
+			if (Items?.Any() ?? false)
+			{
+				return Items;
+			}
+			return Enumerable.Empty<object>();
+		}
+
 		protected override void OnItemsSourceChanged(DependencyPropertyChangedEventArgs e)
 		{
 			// Calling this method before base.OnItemsSourceChanged() ensures that, in the case of an ObservableCollection, the list
@@ -99,7 +114,7 @@ namespace Windows.UI.Xaml.Controls
 			// notify RecyclerView of collection changes before UpdateSuggestionList() measures it, otherwise we get errors like
 			// "Inconsistency detected. Invalid view holder adapter position"
 			UpdateSuggestionList();
-
+			_ItemsSource = (UnwrapItemsSource() as IEnumerable).ToObjectArray().AsEnumerable();
 			base.OnItemsSourceChanged(e);
 		}
 
