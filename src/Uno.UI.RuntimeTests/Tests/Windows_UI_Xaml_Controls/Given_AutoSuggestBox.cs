@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -281,6 +282,45 @@ namespace Uno.UI.RuntimeTests.Tests.Windows_UI_Xaml_Controls
 				var suggestBoxPoint = SUT.TransformToVisual(WindowHelper.WindowContent).TransformPoint(default);
 				Assert.IsTrue(popupPoint.Y + 1 >= suggestBoxPoint.Y + SUT.ActualHeight); // Added 1 to adjust for border on Windows
 			});
+		}
+
+		[TestMethod]
+		public async Task When_Selecting_Suggest_With_UpDown_Key()
+		{
+			AutoSuggestBox SUT = new AutoSuggestBox();
+			string[] suggestions = { "a1", "a2", "b1", "b2" };
+			SUT.TextChanged += (s, e) =>
+			{
+				if (e.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+				{
+					s.ItemsSource = suggestions.Where(i => i.StartsWith(s.Text));
+				}
+			};
+			WindowHelper.WindowContent = SUT;
+			await WindowHelper.WaitForIdle();
+
+			Type type = typeof(AutoSuggestBox);
+			MethodInfo HandleUpDownKeys = type.GetMethod("HandleUpDownKeys", BindingFlags.NonPublic | BindingFlags.Instance);
+			var textBox = (TextBox)SUT.GetTemplateChild("TextBox");
+			SUT.Focus(FocusState.Programmatic);
+
+			textBox.ProcessTextInput("a");
+			await WindowHelper.WaitForIdle();
+			_ = HandleUpDownKeys.Invoke(SUT, new object[] { new KeyRoutedEventArgs(SUT, Windows.System.VirtualKey.Down) });
+			await WindowHelper.WaitForIdle();
+			Assert.AreEqual("a1", SUT.Text);
+			_ = HandleUpDownKeys.Invoke(SUT, new object[] { new KeyRoutedEventArgs(SUT, Windows.System.VirtualKey.Down) });
+			await WindowHelper.WaitForIdle();
+			Assert.AreEqual("a2", SUT.Text);
+
+			textBox.ProcessTextInput("b");
+			await WindowHelper.WaitForIdle();
+			_ = HandleUpDownKeys.Invoke(SUT, new object[] { new KeyRoutedEventArgs(SUT, Windows.System.VirtualKey.Down) });
+			await WindowHelper.WaitForIdle();
+			Assert.AreEqual("b1", SUT.Text);
+			_ = HandleUpDownKeys.Invoke(SUT, new object[] { new KeyRoutedEventArgs(SUT, Windows.System.VirtualKey.Down) });
+			await WindowHelper.WaitForIdle();
+			Assert.AreEqual("b2", SUT.Text);
 		}
 
 		private async Task When_Popup_Position(VerticalAlignment verticalAlignment, Action<AutoSuggestBox, Popup> assert)
