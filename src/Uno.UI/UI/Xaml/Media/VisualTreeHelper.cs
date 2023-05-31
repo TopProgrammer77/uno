@@ -74,11 +74,6 @@ namespace Windows.UI.Xaml.Media
 
 					if (child is UIElement uiElement && canTest)
 					{
-						if (IsElementIntersecting(intersectingPoint, uiElement))
-						{
-							yield return uiElement;
-						}
-
 						foreach (var subChild in FindElementsInHostCoordinates(intersectingPoint, child, includeAllElements))
 						{
 							yield return subChild;
@@ -91,7 +86,7 @@ namespace Windows.UI.Xaml.Media
 		private static bool IsElementIntersecting(Point intersectingPoint, UIElement uiElement)
 		{
 			GeneralTransform transformToRoot = uiElement.TransformToVisual(null);
-			var target = transformToRoot.TransformBounds(uiElement.LayoutSlot);
+			var target = transformToRoot.TransformBounds(new Rect(0, 0, uiElement.ActualSize.X, uiElement.ActualSize.Y));
 			return target.Contains(intersectingPoint);
 		}
 
