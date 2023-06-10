@@ -43,7 +43,13 @@ namespace Microsoft.UI.Xaml.Controls
 
 		internal TreeViewViewModel ListViewModel { get; private set; }
 
-		internal TreeViewNode DraggedTreeViewNode { get; private set; }
+		internal TreeViewNode DraggedTreeViewNode
+		{
+			get
+			{
+				return m_draggedTreeViewNode;
+			}
+		}
 
 		private void OnDragItemsStarting(object sender, DragItemsStartingEventArgs args)
 		{
@@ -160,6 +166,7 @@ namespace Microsoft.UI.Xaml.Controls
 			}
 
 			base.OnDrop(e);
+			Refresh();
 		}
 
 		// Required as OnDrop is protected and can't be accessed from outside
@@ -205,7 +212,8 @@ namespace Microsoft.UI.Xaml.Controls
 					int size = itemsSource.Count;
 					var point = args.GetPosition((UIElement)insertionPanel);
 					insertionPanel.GetInsertionIndexes(point, out aboveIndex, out belowIndex);
-
+					System.Console.WriteLine("aboveIndex: " + aboveIndex);
+					System.Console.WriteLine("below: " + belowIndex);
 					// a value of -1 means we're inserting at the end of the list or before the last item
 					if (belowIndex == -1)
 					{

@@ -29,9 +29,9 @@ namespace Windows.UI.Xaml.Controls
 		public event DragItemsStartingEventHandler DragItemsStarting;
 		public event TypedEventHandler<ListViewBase, DragItemsCompletedEventArgs> DragItemsCompleted;
 
-#pragma warning disable CS0414 // Field currently used only on Android.
-		private bool _isProcessingReorder;
-#pragma warning restore CS0414
+//#pragma warning disable CS0414 // Field currently used only on Android.
+//		private bool _isProcessingReorder;
+//#pragma warning restore CS0414
 
 		#region CanReorderItems (DP)
 		public static DependencyProperty CanReorderItemsProperty { get; } = DependencyProperty.Register(
@@ -137,26 +137,26 @@ namespace Windows.UI.Xaml.Controls
 				that.DragItemsStarting?.Invoke(that, args);
 
 				// The application has the ability to add some items in the list, so make sure to freeze it only after event has been raised.
-				args.Data.SetData(DragItemsFormatId, args.Items.ToList());
+				//args.Data.SetData(DragItemsFormatId, args.Items.ToList());
 
-				// The ListView must have both CanReorderItems and AllowDrop flags set to allow re-ordering (UWP)
-				// We also do not allow re-ordering if we where not able to find the item (as it has to be hidden in the view) (Uno only)
+				//// The ListView must have both CanReorderItems and AllowDrop flags set to allow re-ordering (UWP)
+				//// We also do not allow re-ordering if we where not able to find the item (as it has to be hidden in the view) (Uno only)
 				if (that.CanReorderItems && that.AllowDrop && draggedItem is { })
 				{
-					args.Data.SetData(ReorderOwnerFormatId, that);
-					args.Data.SetData(ReorderItemFormatId, draggedItem);
-					args.Data.SetData(ReorderContainerFormatId, sender);
+				//	args.Data.SetData(ReorderOwnerFormatId, that);
+				//	args.Data.SetData(ReorderItemFormatId, draggedItem);
+				//	args.Data.SetData(ReorderContainerFormatId, sender);
 
-					// For safety only, avoids double subscription
-					that.DragEnter -= OnReorderDragUpdated;
-					that.DragOver -= OnReorderDragUpdated;
-					that.DragLeave -= OnReorderDragLeave;
-					that.Drop -= OnReorderCompleted;
+				//	// For safety only, avoids double subscription
+				//	that.DragEnter -= OnReorderDragUpdated;
+				//	that.DragOver -= OnReorderDragUpdated;
+				//	that.DragLeave -= OnReorderDragLeave;
+				//	that.Drop -= OnReorderCompleted;
 
-					that.DragEnter += OnReorderDragUpdated;
-					that.DragOver += OnReorderDragUpdated;
-					that.DragLeave += OnReorderDragLeave;
-					that.Drop += OnReorderCompleted;
+				//	that.DragEnter += OnReorderDragUpdated;
+				//	that.DragOver += OnReorderDragUpdated;
+				//	that.DragLeave += OnReorderDragLeave;
+				//	that.Drop += OnReorderCompleted;
 
 					that.m_tpPrimaryDraggedContainer = sender as SelectorItem;
 
@@ -259,115 +259,115 @@ namespace Windows.UI.Xaml.Controls
 
 			that.ChangeSelectorItemsVisualState(true);
 
-			if (that.IsGrouping
-				|| !updatedIndex.HasValue
-				|| !(dragEventArgs.DataView.FindRawData(DragItemsFormatId) is List<object> movedItems))
-			{
-				return;
-			}
+//			if (that.IsGrouping
+//				|| !updatedIndex.HasValue
+//				|| !(dragEventArgs.DataView.FindRawData(DragItemsFormatId) is List<object> movedItems))
+//			{
+//				return;
+//			}
 
-			var unwrappedSource = that.UnwrapItemsSource();
-			switch (unwrappedSource)
-			{
-				case null: // The ListView was created with items defined in XAML
-					var items = that.Items;
-					ProcessMove(
-						items.Count,
-						items.IndexOf,
-						(oldIndex, newIndex) => DoMove(items, oldIndex, newIndex));
-					break;
+//			var unwrappedSource = that.UnwrapItemsSource();
+//			switch (unwrappedSource)
+//			{
+//				case null: // The ListView was created with items defined in XAML
+//					var items = that.Items;
+//					ProcessMove(
+//						items.Count,
+//						items.IndexOf,
+//						(oldIndex, newIndex) => DoMove(items, oldIndex, newIndex));
+//					break;
 
-				case IObservableVector vector:
-					ProcessMove(
-						vector.Count,
-						vector.IndexOf,
-						(oldIndex, newIndex) => DoMove(vector, oldIndex, newIndex));
-					break;
+//				case IObservableVector vector:
+//					ProcessMove(
+//						vector.Count,
+//						vector.IndexOf,
+//						(oldIndex, newIndex) => DoMove(vector, oldIndex, newIndex));
+//					break;
 
-				case IList list when IsObservableCollection(list):
-					// The UWP ListView seems to automatically push back changes only if the ItemsSource inherits from ObservableCollection
-					// Note: UWP does not use the Move method on ObservableCollection!
-					ProcessMove(
-						list.Count,
-						list.IndexOf,
-						(oldIndex, newIndex) => DoMove(list, oldIndex, newIndex));
-					break;
+//				case IList list when IsObservableCollection(list):
+//					// The UWP ListView seems to automatically push back changes only if the ItemsSource inherits from ObservableCollection
+//					// Note: UWP does not use the Move method on ObservableCollection!
+//					ProcessMove(
+//						list.Count,
+//						list.IndexOf,
+//						(oldIndex, newIndex) => DoMove(list, oldIndex, newIndex));
+//					break;
 
-				case ICollectionView view when !view.IsReadOnly:
-					ProcessMove(
-						view.Count,
-						view.IndexOf,
-						(oldIndex, newIndex) => DoMove(view, oldIndex, newIndex));
-					break;
-			}
+//				case ICollectionView view when !view.IsReadOnly:
+//					ProcessMove(
+//						view.Count,
+//						view.IndexOf,
+//						(oldIndex, newIndex) => DoMove(view, oldIndex, newIndex));
+//					break;
+//			}
 
-			void ProcessMove(
-				int count,
-				Func<object, int> indexOf,
-				Action<int, int> mv)
-			{
-				var indexOfDraggedItem = indexOf(item);
-				if (indexOfDraggedItem < 0)
-				{
-					return;
-				}
+//			void ProcessMove(
+//				int count,
+//				Func<object, int> indexOf,
+//				Action<int, int> mv)
+//			{
+//				var indexOfDraggedItem = indexOf(item);
+//				if (indexOfDraggedItem < 0)
+//				{
+//					return;
+//				}
 
-				try
-				{
-					that._isProcessingReorder = true;
+//				try
+//				{
+//					that._isProcessingReorder = true;
 
-					int newIndex;
-					if (updatedIndex.Value.Row == int.MaxValue)
-					{
-						// I.e. we are at the end, there is no items below
-						newIndex = count - 1;
-					}
-					else
-					{
-						newIndex = that.GetIndexFromIndexPath(updatedIndex.Value);
-#if !__IOS__ // This correction doesn't apply on iOS
-						if (indexOfDraggedItem < newIndex)
-						{
-							// If we've moved items down, we have to take in consideration that the updatedIndex
-							// is already assuming that the item has been removed, so it's offsetted by 1.
-							newIndex--;
-						}
-#endif
-					}
+//					int newIndex;
+//					if (updatedIndex.Value.Row == int.MaxValue)
+//					{
+//						// I.e. we are at the end, there is no items below
+//						newIndex = count - 1;
+//					}
+//					else
+//					{
+//						newIndex = that.GetIndexFromIndexPath(updatedIndex.Value);
+//#if !__IOS__ // This correction doesn't apply on iOS
+//						if (indexOfDraggedItem < newIndex)
+//						{
+//							// If we've moved items down, we have to take in consideration that the updatedIndex
+//							// is already assuming that the item has been removed, so it's offsetted by 1.
+//							newIndex--;
+//						}
+//#endif
+//					}
 
-					// When moving more than one item (multi-select), we keep their actual order in the list, no matter which one was dragged.
-					movedItems.Sort((it1, it2) => indexOf(it1).CompareTo(indexOf(it2)));
+//					// When moving more than one item (multi-select), we keep their actual order in the list, no matter which one was dragged.
+//					movedItems.Sort((it1, it2) => indexOf(it1).CompareTo(indexOf(it2)));
 
-					for (var i = 0; i < movedItems.Count; i++)
-					{
-						var movedItem = movedItems[i];
-						var oldIndex = indexOf(movedItem);
+//					for (var i = 0; i < movedItems.Count; i++)
+//					{
+//						var movedItem = movedItems[i];
+//						var oldIndex = indexOf(movedItem);
 
-						if (oldIndex < 0 || oldIndex == newIndex)
-						{
-							continue; // Item removed or already at the right place, nothing to do.
-						}
+//						if (oldIndex < 0 || oldIndex == newIndex)
+//						{
+//							continue; // Item removed or already at the right place, nothing to do.
+//						}
 
-						var restoreSelection = that.SelectedIndex == oldIndex;
+//						var restoreSelection = that.SelectedIndex == oldIndex;
 
-						mv(oldIndex, newIndex);
+//						mv(oldIndex, newIndex);
 
-						if (restoreSelection)
-						{
-							that.SelectedIndex = newIndex;
-						}
+//						if (restoreSelection)
+//						{
+//							that.SelectedIndex = newIndex;
+//						}
 
-						if (oldIndex > newIndex)
-						{
-							newIndex++;
-						}
-					}
-				}
-				finally
-				{
-					that._isProcessingReorder = false;
-				}
-			}
+//						if (oldIndex > newIndex)
+//						{
+//							newIndex++;
+//						}
+//					}
+//				}
+//				finally
+//				{
+//					that._isProcessingReorder = false;
+//				}
+//			}
 		}
 
 		/// <summary>
