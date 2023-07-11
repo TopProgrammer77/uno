@@ -205,7 +205,8 @@ namespace Microsoft.UI.Xaml.Controls
 					int size = itemsSource.Count;
 					var point = args.GetPosition((UIElement)insertionPanel);
 					insertionPanel.GetInsertionIndexes(point, out aboveIndex, out belowIndex);
-
+					System.Console.WriteLine("aboveIndex1: " + aboveIndex);
+					System.Console.WriteLine("below1: " + belowIndex);
 					// a value of -1 means we're inserting at the end of the list or before the last item
 					if (belowIndex == -1)
 					{
