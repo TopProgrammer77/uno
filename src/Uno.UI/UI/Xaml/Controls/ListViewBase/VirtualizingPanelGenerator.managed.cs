@@ -43,7 +43,7 @@ namespace Windows.UI.Xaml.Controls
 		/// <summary>
 		/// Recycled item containers that can be reused as needed. This is actually multiple caches indexed by template id.
 		/// </summary>
-		private readonly Dictionary<int, Stack<FrameworkElement>> _itemContainerCache = new Dictionary<int, Stack<FrameworkElement>>();
+		private readonly Dictionary<int, Queue<FrameworkElement>> _itemContainerCache = new Dictionary<int, Queue<FrameworkElement>>();
 		/// <summary>
 		/// Caching the id is more efficient, and also important in the case of the ItemsSource changing, when the (former) item may no longer be in the new collection.
 		///
@@ -83,7 +83,7 @@ namespace Windows.UI.Xaml.Controls
 			{
 				while (cache.Value.Count > _cacheLimit)
 				{
-					DiscardContainer(cache.Value.Pop());
+					DiscardContainer(cache.Value.Dequeue());
 				}
 			}
 		}
@@ -147,7 +147,8 @@ namespace Windows.UI.Xaml.Controls
 			{
 				if (cache.Count > 0)
 				{
-					var cachedView = cache.Pop();
+					var cachedView = cache.Dequeue();
+
 					cachedView.Visibility = Visibility.Visible;
 					return cachedView;
 				}
@@ -188,11 +189,11 @@ namespace Windows.UI.Xaml.Controls
 					this.Log().LogDebug($"{GetMethodTag()} container={container} index={index}");
 				}
 
-				var cache = _itemContainerCache.FindOrCreate(id, () => new Stack<FrameworkElement>());
+				var cache = _itemContainerCache.FindOrCreate(id, () => new Queue<FrameworkElement>());
 
 				if (cache.Count < CacheLimit)
 				{
-					cache.Push(container);
+					cache.Enqueue(container);
 
 					if (clearContainer)
 					{
